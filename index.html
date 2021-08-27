@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <select data-bind="options: colors, optionsText: 'colorName', value: firstBand, optionsAfterRender: setOptionColor, style: { backgroundColor: firstBand().colorCode }"></select>
+        <select data-bind="options: colors, optionsText: 'colorName', value: secondBand, optionsAfterRender: setOptionColor, style: { backgroundColor: secondBand().colorCode }"></select>
+        <select data-bind="options: multipliers, optionsText: 'colorName', value: thirdBand, optionsAfterRender: setOptionColor, style: { backgroundColor: thirdBand().colorCode }"></select>
+        <select data-bind="options: tolerances, optionsText: 'colorName', value: fourthBand, optionsAfterRender: setOptionColor, style: { backgroundColor: fourthBand().colorCode }"></select>
+    </div>
+    <div>
+        <span data-bind="text: firstBand().value"></span>
+        <span data-bind="text: secondBand().value"></span>
+        <span data-bind="text: thirdBand().value"></span>
+        =
+        <span data-bind="text: resistanceValue() > 1000 ? (resistanceValue() / 1000) + 'k' : resistanceValue()"></span>Ω ±<span data-bind="text: fourthBand().value"></span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-latest.min.js"
+        integrity="sha512-vs7+jbztHoMto5Yd/yinM4/y2DOkPLt0fATcN+j+G4ANY2z4faIzZIOMkpBmWdcxt+596FemCh9M18NUJTZwvw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        var Band = function (colorName, colorCode, value) {
+            this.colorName = colorName;
+            this.colorCode = colorCode;
+            this.value = value;
+        }
+
+        var AppViewModel = function() {
+            this.firstBand = ko.observable();
+            this.secondBand = ko.observable();
+            this.thirdBand = ko.observable();
+            this.fourthBand = ko.observable();
+
+            this.resistanceValue = ko.pureComputed(function() {
+                return (this.firstBand().value * 10 + this.secondBand().value) * this.thirdBand().value;
+            }, this);
+
+            this.colors = ko.observableArray([
+                new Band('黒', 'black', 0),
+                new Band('茶', 'brown', 1),
+                new Band('赤', 'red', 2),
+                new Band('橙', 'orange', 3),
+                new Band('黄', 'yellow', 4),
+                new Band('緑', 'green', 5),
+                new Band('青', 'blue', 6),
+                new Band('紫', 'violet', 7),
+                new Band('灰', 'gray', 8),
+                new Band('白', 'white', 9),
+            ]);
+
+            this.multipliers = ko.observableArray([
+                new Band('黒', 'black', Math.pow(10,0)),
+                new Band('茶', 'brown', Math.pow(10,1)),
+                new Band('赤', 'red', Math.pow(10,2)),
+                new Band('橙', 'orange', Math.pow(10,3)),
+                new Band('黄', 'yellow', Math.pow(10,4)),
+                new Band('緑', 'green', Math.pow(10,5)),
+                new Band('青', 'blue', Math.pow(10,6)),
+                new Band('紫', 'violet', Math.pow(10,7)),
+                new Band('白', 'white', Math.pow(10,-3)),
+                new Band('金', 'gold', Math.pow(10,-1)),
+                new Band('銀', 'silver', Math.pow(10,-2)),
+            ]);
+
+            this.tolerances = ko.observableArray([
+                new Band('茶', 'brown', 1),
+                new Band('赤', 'red', 2),
+                new Band('橙', 'orange', 0.05),
+                new Band('緑', 'green', 0.5),
+                new Band('青', 'blue', 0.25),
+                new Band('紫', 'violet', 0.1),
+                new Band('金', 'gold', 5),
+                new Band('銀', 'silver', 10),
+            ]);
+
+            this.setOptionColor = function (option, band) {
+                ko.applyBindingsToNode(option, { style: { backgroundColor: band.colorCode } }, band);
+            };
+        };
+
+        ko.applyBindings(new AppViewModel());
+    </script>
+</body>
+
+</html>
